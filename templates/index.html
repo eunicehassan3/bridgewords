@@ -1,0 +1,28 @@
+<h1>Bridgewords</h1>
+<p>Start: {{ start }} | Target: {{ target }}</p>
+<input type="text" id="guess" placeholder="Enter next word">
+<button onclick="submitWord()">Submit</button>
+<p id="chain"></p>
+
+<script>
+let chain = [];
+
+function submitWord() {
+  const input = document.getElementById("guess");
+  const word = input.value.trim();
+  fetch("/validate", {
+    method: "POST",
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({word})
+  }).then(res => res.json())
+    .then(data => {
+      if (data.valid) {
+        chain.push(word);
+        document.getElementById("chain").textContent = chain.join(" → ");
+      } else {
+        alert("Invalid word!");
+      }
+      input.value = "";
+    });
+}
+</script>
