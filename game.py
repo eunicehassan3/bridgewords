@@ -84,7 +84,7 @@ def play_game():
 # w1 = nlp("rich")
 # w2 = nlp("business") 
 # print(w1.similarity(w2))
-play_game()
+# play_game()
 
 
 # print(get_related_words("bird"))

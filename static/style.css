@@ -8,5 +8,96 @@ h1{
     /* display: block; */
     justify-content: center;
      display: flex;
-    color:aqua;
+}
+
+.chain{
+    justify-content: center;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    gap: 20px;
+    margin:10px;
+    padding:10px;
+}
+
+.block{
+    background-color: beige;
+    margin:20px;
+    padding: 10px;
+}
+
+
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+}
+
+.word-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.word-box, .bridge-box {
+  background-color: #ddd;
+  padding: 10px 20px;
+  border-radius: 5px;
+  min-width: 80px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.bridge-box {
+  width: 60px;
+  height: 30px;
+  background-color: #ddd;
+}
+
+.line {
+  height: 2px;
+  background-color: #333;
+  width: 20px;
+}
+
+.word-box {
+  background-color: #ddd;
+  padding: .5rem 1rem;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+  min-width: 80px;
+  /* white-space: nowrap; */
+}
+
+/* Optional green for correct guesses */
+.word-box.correct {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.bridge-input {
+  font-weight: bold;
+  background-color: #ddd;
+  border-radius: 5px;
+  text-align: center;
+  outline: none;
+  transition: width 0.2s;
+  padding: 0.5rem;
+  min-width: 60px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+}
+
+/* Optional: when input is correct */
+.bridge-input.correct {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.line {
+  height: 2px;
+  background-color: #333;
+  width: 20px;
 }
