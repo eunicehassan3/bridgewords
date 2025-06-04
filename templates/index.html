@@ -29,7 +29,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <script>
+<script>
   function createWordBox(text) {
     const box = document.createElement("div");
     box.className = "word-box";
@@ -50,6 +50,11 @@
     return input;
   }
 
+  function showMessage(text) {
+    const responseElem = document.getElementById("response");
+    responseElem.textContent = text;
+  }
+
   function submitGuess(inputElem = null) {
     const input = inputElem || document.getElementById("guessInput");
     const guess = input.value.trim();
@@ -63,48 +68,75 @@
       },
       body: JSON.stringify({ word: guess })
     })
-    .then((response) => response.json())
-    .then((data) => {
-      const wordLine = document.getElementById("wordLine");
-
-      if (data.valid) {
-        // Remove current input and following line
-        const nextLine = input.nextElementSibling;
-        if (nextLine && nextLine.classList.contains("line")) {
-          wordLine.removeChild(nextLine);
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server error");
         }
-        wordLine.removeChild(input);
+        return response.json();
+      })
+      .then((data) => {
+        const wordLine = document.getElementById("wordLine");
 
-        // Insert guessed word box
-        const wordBox = createWordBox(guess);
-        wordLine.insertBefore(wordBox, document.getElementById("targetWord"));
+        if (data.valid) {
+          // Remove current input and optional line after it
+          const nextLine = input.nextElementSibling;
+          if (nextLine && nextLine.classList.contains("line")) {
+            wordLine.removeChild(nextLine);
+          }
+          wordLine.removeChild(input);
 
-        // Add new line and input
-        const newLine = document.createElement("div");
-        newLine.className = "line";
-        const newInput = createInput();
-        wordLine.insertBefore(newLine, document.getElementById("targetWord"));
-        wordLine.insertBefore(newInput, document.getElementById("targetWord"));
+          // Insert guessed word box
+          const wordBox = createWordBox(guess);
+          wordLine.insertBefore(wordBox, document.getElementById("targetWord"));
 
-        document.getElementById("response").textContent = data.message;
+          if (!data.goal) {
+            // Add new input and line if game continues
+            const newLine = document.createElement("div");
+            newLine.className = "line";
+            const newInput = createInput();
+            wordLine.insertBefore(newLine, document.getElementById("targetWord"));
+            wordLine.insertBefore(newInput, document.getElementById("targetWord"));
+            newInput.focus();
+          }
 
-        if (data.goal) {
-          document.getElementById("response").textContent = "🎉 You reached the target word!";
+          showMessage(data.message);
+        } else {
+          // Invalid or unrelated word — let user try again
+          showMessage(data.message);
+          input.value = "";
         }
-      } else {
-        // Show feedback, keep input
-        document.getElementById("response").textContent = data.message;
-        input.value = "";
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        showMessage("❗ An unexpected error occurred. Try again.");
+      });
   }
 
+  // On page load: fetch random words
   window.onload = function () {
     fetch("/get-words")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch game words");
+        }
+        return response.json();
+      })
       .then((data) => {
         document.getElementById("startWord").textContent = data.start;
         document.getElementById("targetWord").textContent = data.target;
+
+        // Optionally: clear previous guess line if reloading game
+        const wordLine = document.getElementById("wordLine");
+        const input = createInput();
+        const line = document.createElement("div");
+        line.className = "line";
+        wordLine.insertBefore(line, document.getElementById("targetWord"));
+        wordLine.insertBefore(input, document.getElementById("targetWord"));
+        input.focus();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        showMessage("⚠️ Could not load start and target words.");
       });
   };
 </script>
@@ -119,18 +151,23 @@
 <body>
   <h1>Bridgewords</h1>
 
-  <div class="game-container">
-    <div class="word-line">
+  <!-- <div class="game-container">
+    <div class="word-line" id="wordLine">
       <div class="word-box" id="startWord"></div>
       <div class="line"></div>
-      <input type="text" class="bridge-input" id="guessInput" placeholder="LINK" />
-      <div class="line"></div>
+      <input type="text" class="bridge-input" id="guessInput" placeholder="LINK" /> -->
+      <!-- <div class="line"></div> 
       <div class="word-box" id="targetWord"></div>
-    </div>
+    </div> -->
 
-    <p id="response"></p>
-    <button onclick="submitGuess()">Submit</button>
-    
+    <div class="game-container">
+      <div class="word-line" id="wordLine"> 
+        <div class="word-box" id="startWord">START</div>
+        <div class="word-box" id="targetWord">TARGET</div>
+      </div>
+
+      <p id="response" class="response-message"></p> 
+      <button onclick="submitGuess()">Submit</button>
   </div>
 </body>
 </html>
